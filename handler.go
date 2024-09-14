@@ -28,19 +28,11 @@ func (wh Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.
 	a.SetReply(r)
 	a.Authoritative = true
 
-	ip := state.IP()
-	var rr dns.RR
+	ip := "1.1.1.1"
 
-	switch state.Family() {
-	case 1:
-		rr = new(dns.A)
-		rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
-		rr.(*dns.A).A = net.ParseIP(ip).To4()
-	case 2:
-		rr = new(dns.AAAA)
-		rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass()}
-		rr.(*dns.AAAA).AAAA = net.ParseIP(ip)
-	}
+	var rr dns.RR = new(dns.A)
+	rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
+	rr.(*dns.A).A = net.ParseIP(ip).To4()
 
 	srv := new(dns.SRV)
 	srv.Hdr = dns.RR_Header{Name: "_" + state.Proto() + "." + state.QName(), Rrtype: dns.TypeSRV, Class: state.QClass()}
