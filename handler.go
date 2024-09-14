@@ -2,8 +2,8 @@ package coredns_postgresql
 
 import (
 	"context"
+	"fmt"
 	"net"
-	"strconv"
 
 	clog "github.com/coredns/coredns/plugin/pkg/log"
 	"github.com/coredns/coredns/request"
@@ -34,16 +34,8 @@ func (wh Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.
 	rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
 	rr.(*dns.A).A = net.ParseIP(ip).To4()
 
-	srv := new(dns.SRV)
-	srv.Hdr = dns.RR_Header{Name: "_" + state.Proto() + "." + state.QName(), Rrtype: dns.TypeSRV, Class: state.QClass()}
-	if state.QName() == "." {
-		srv.Hdr.Name = "_" + state.Proto() + state.QName()
-	}
-	port, _ := strconv.ParseUint(state.Port(), 10, 16)
-	srv.Port = uint16(port)
-	srv.Target = "."
-
-	a.Extra = []dns.RR{rr, srv}
+	a.Extra = []dns.RR{rr}
+	a.Answer = []dns.RR{rr}
 
 	w.WriteMsg(a)
 
