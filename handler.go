@@ -2,7 +2,6 @@ package coredns_postgresql
 
 import (
 	"context"
-	"fmt"
 	"net"
 
 	clog "github.com/coredns/coredns/plugin/pkg/log"
@@ -29,10 +28,7 @@ func (wh Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.
 	a.Authoritative = true
 
 	ip := "1.1.1.1"
-
-	var rr dns.RR = new(dns.A)
-	rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
-	rr.(*dns.A).A = net.ParseIP(ip).To4()
+	rr := newResponse(state, ip)
 
 	a.Extra = []dns.RR{rr}
 	a.Answer = []dns.RR{rr}
