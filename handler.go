@@ -10,12 +10,6 @@ import (
 
 const name = "postgresql"
 
-type Postgresql struct {
-	user     string
-	password string
-	database string
-}
-
 // ServeDNS implements the plugin.Handler interface.
 func (handler Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	state := request.Request{W: w, Req: r}
@@ -29,13 +23,6 @@ func (handler Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r 
 	response := createResponse(state)
 	w.WriteMsg(response)
 
-	conn, err := handler.dbConnect()
-	defer conn.Close()
-	if err == nil {
-		clog.Info("Database connected!!!")
-	} else {
-		clog.Error("Failed to connect to database!!!")
-	}
 	return 0, nil
 }
 
