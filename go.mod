@@ -5,6 +5,7 @@ go 1.22.5
 require (
 	github.com/coredns/caddy v1.1.1
 	github.com/coredns/coredns v1.11.3
+	github.com/lib/pq v1.10.9
 	github.com/miekg/dns v1.1.62
 )
 

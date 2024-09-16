@@ -6,13 +6,18 @@ import (
 	"net"
 )
 
-func newResponse(state request.Request, rdata string) dns.RR {
-	var rr dns.RR
+func createResponse(state request.Request) *dns.Msg {
+	response := new(dns.Msg)
+	response.SetReply(state.Req)
+	response.Authoritative = true
+
 	switch state.Type() {
 	case "A":
-		rr = new(dns.A)
+		rdata := "1.1.1.1"
+		var rr dns.RR = new(dns.A)
 		rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
 		rr.(*dns.A).A = net.ParseIP(rdata).To4()
+		response.Answer = []dns.RR{rr}
 	}
-	return rr
+	return response
 }

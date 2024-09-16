@@ -10,10 +10,14 @@ import (
 
 const name = "postgresql"
 
-type Postgresql struct{}
+type Postgresql struct {
+	user     string
+	password string
+	database string
+}
 
 // ServeDNS implements the plugin.Handler interface.
-func (wh Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+func (handler Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	state := request.Request{W: w, Req: r}
 
 	clog.Info("Start postgresql !!!")
@@ -22,20 +26,18 @@ func (wh Postgresql) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.
 	clog.Info(state.IP())
 	clog.Info("End postgresql !!!")
 
-	a := new(dns.Msg)
-	a.SetReply(r)
-	a.Authoritative = true
+	response := createResponse(state)
+	w.WriteMsg(response)
 
-	ip := "1.1.1.1"
-	rr := newResponse(state, ip)
-
-	a.Extra = []dns.RR{rr}
-	a.Answer = []dns.RR{rr}
-
-	w.WriteMsg(a)
-
+	conn, err := handler.dbConnect()
+	defer conn.Close()
+	if err == nil {
+		clog.Info("Database connected!!!")
+	} else {
+		clog.Error("Failed to connect to database!!!")
+	}
 	return 0, nil
 }
 
 // Name implements the Handler interface.
-func (wh Postgresql) Name() string { return name }
+func (handler Postgresql) Name() string { return name }
